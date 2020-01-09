@@ -159,7 +159,7 @@ class Tello:
             response = self.response.decode('utf-8')
 
         self.response = None
-
+        time.sleep(5)
         return response
 
     def set_abort_flag(self):

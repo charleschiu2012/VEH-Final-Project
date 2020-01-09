@@ -97,6 +97,7 @@ def find_CM(image):
 
     # Stretch the gray image
     stretched_img = stretch(gray_img)
+    cv2.imwrite("./images/img_gray.jpg", stretched_img)
     # cv2.imshow("Stretched image", stretched_img)
 
     # r = 16
@@ -114,11 +115,12 @@ def find_CM(image):
     # Canny edge detection 
     canny = cv2.Canny(binary_img, binary_img.shape[0], binary_img.shape[1])
     # cv2.imshow("Canny Edge Detection", canny)
-    # canny[:100] = 0
-    # canny[:, :100] = 0
-    # canny[-100:] = 0
-    # canny[:, -100:] = 0
+    canny[:10] = 0
+    canny[:, :10] = 0
+    canny[-10:] = 0
+    canny[:, -10:] = 0
     # cv2.imshow("Canny Edge Detection (after denoise)", canny)
+    cv2.imwrite("./images/img_canny.jpg", canny)
     
     # Eliminate the small area, keep the big area, to locate the calling machine
     # Excute closing operation
@@ -126,6 +128,7 @@ def find_CM(image):
     closingimg = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
     # cv2.imshow("Closing Opeartion image", closingimg)
     # cv2.waitKey(0)
+    cv2.imwrite("./images/img_closing.jpg", closingimg)
 
     rectangle = locate_CM(closingimg, resize_img)
 
@@ -186,7 +189,7 @@ def main(filename):
     # filepath = "F:/Tello_img/New folder/2020-01-08_16-25-04.jpg"
     image = cv2.imread(filename, cv2.IMREAD_COLOR)
     # image = cv2.imread(os.path.join("./images", filename + ".jpg"), cv2.IMREAD_COLOR)
-    resize_img = cv2.resize(image, (400, 300))
+    # resize_img = cv2.resize(image, (400, 300))
     # cv2.imshow("Original image", resize_img)
 
     # Transform color space from RGB to HSV color to do histogram equalization
@@ -196,7 +199,7 @@ def main(filename):
     # cv2.imshow("Histogram Equalization", eq_img)
 
     # Resize the image and find rectangle of calling machine
-    resize_img, rectangle = find_CM(resize_img)
+    resize_img, rectangle = find_CM(image)
     cv2.rectangle(resize_img, (rectangle[0], rectangle[1]), (rectangle[2], rectangle[3]), (0, 255, 0), 2)
     # cv2.imshow("Bounding box of number", resize_img)
 
@@ -207,6 +210,7 @@ def main(filename):
     # Binarize the segmentation result
     binary_img = smooth_and_binarization(seg_img)
     # cv2.imshow("Binary segmentation result", binary_img)
+    cv2.imwrite("./images/img_binary.jpg", binary_img)
 
     # Analyze the color of background and numbers, and segment the each numbers#
     # 紀錄黑白像素總和
