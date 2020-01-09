@@ -8,7 +8,7 @@ import pickle
 #定義區
 ########################################
 modelType = "yolo-tiny"  #yolo or yolo-tiny
-confThreshold = 0.3  #Confidence threshold
+confThreshold = 0.5  #Confidence threshold
 nmsThreshold = 0.1   #Non-maximum suppression threshold
 
 classesFile = "./data/obj.names";
@@ -104,6 +104,9 @@ def postprocess(frame, outs):
                 boxes.append([left, top, width, height])
                 print("Predict:", classes[classId])
                 result.append([1, classId, confidence, center_x, center_y, width, height, left, top])
+                if classId == 3:
+                    crop_frame = frame[top:top + height, left: left + width]
+                    cv2.imwrite('./images/img_crop.jpg', crop_frame)
 
     indices = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
     for i in indices:

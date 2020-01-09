@@ -31,6 +31,10 @@ def get_features(image):
     return np.array(features)
 
 def main(input_imgs):
+    # files = os.listdir("./Results_recognition")
+    # for file in files:
+    #     os.remove(os.path.join("./Results_recognition", file))
+
     #------------ Get the feature of ground truth image ------------#
     root_gt_path = "./ground_truth"
     gt_filenames = os.listdir(root_gt_path)
@@ -39,9 +43,9 @@ def main(input_imgs):
         gt_img = cv2.imread(os.path.join(root_gt_path, gt_filename), cv2.IMREAD_GRAYSCALE)
         gt_feature = get_features(gt_img)
         gt_features.append(gt_feature)
-        print("Ground Truth number:", idx)
-        print(gt_feature)
-        print("\n" + "-"*40 + "\n")
+        # print("Ground Truth number:", idx)
+        # print(gt_feature)
+        # print("\n" + "-"*40 + "\n")
     
     #-------------- Predict the number of input image -------------#
     pred_numbers = []
@@ -56,7 +60,8 @@ def main(input_imgs):
         #-- Compute the difference between GT and input --#
         differences = []
         for gt_feature in gt_features:
-            differences.append(np.linalg.norm(gt_feature - input_feature))
+            difference = np.linalg.norm(gt_feature - input_feature)
+            differences.append(difference)
 
         pred_number = np.argmin(differences)
         pred_numbers.append(pred_number)
@@ -65,9 +70,9 @@ def main(input_imgs):
         print("Differences:", differences)
 
         #---------------- Visualize the recognition result ---------------#
-        cv2.putText(show_img, str(pred_number), (10, 50), 0, 1, (0, 255, 0))
-        cv2.imshow("Original image: %d" %(pred_number), show_img)
-        cv2.waitKey(0)
+        # cv2.putText(show_img, str(pred_number), (10, 50), 0, 1, (0, 255, 0))
+        # cv2.imshow("Original image: %d" %(pred_number), show_img)
+        # cv2.waitKey(0)
 
         #------------------ Save the recognition result ------------------#
         os.makedirs("./Results_recognition", exist_ok=True)

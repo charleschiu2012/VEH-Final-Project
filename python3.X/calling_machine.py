@@ -9,7 +9,7 @@ import recognition
 # args = parser.parse_args()
 
 HOST = '127.0.0.1'  # 服务器的主机名或者 IP 地址
-PORT = 9999         # 服务器使用的端口
+PORT = 9999  # 服务器使用的端口
 
 if __name__ == "__main__":
     while True:
@@ -27,7 +27,7 @@ if __name__ == "__main__":
             check = s.recv(4096)
             print("Received", check)
             if check == b"2":
-                frame = "./images/image.jpg"
+                frame = "./images/img_crop.jpg"
                 #----------------- Image segmentation -----------------#
                 print("\n" + "="*30 + " Segmentation " + "="*30 + "\n")
                 numbers = segmentation.main(frame)
@@ -47,4 +47,15 @@ if __name__ == "__main__":
                 s.sendall(b"Nothing")
 
             s.close()
-    
+    # frame = "F:/Tello_img/New folder/2020-01-08_16-23-53.jpg"
+    # # ----------------- Image segmentation -----------------#
+    # print("\n" + "=" * 30 + " Segmentation " + "=" * 30 + "\n")
+    # numbers = segmentation.main(frame)
+    #
+    # # ------------------ Image recognition -----------------#
+    # print("=" * 30 + " Recognition " + "=" * 30 + "\n")
+    # pred_numbers = recognition.main(numbers)
+    #
+    # # ------------- Show the prediction result -------------#
+    # print("\n" + "=" * 30 + " Prediction results " + "=" * 30)
+    # print("Prediction results:", pred_numbers)

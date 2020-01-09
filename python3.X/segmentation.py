@@ -97,7 +97,7 @@ def find_CM(image):
 
     # Stretch the gray image
     stretched_img = stretch(gray_img)
-    cv2.imshow("Stretched image", stretched_img)
+    # cv2.imshow("Stretched image", stretched_img)
 
     # r = 16
     # h = w = r * 2 + 1
@@ -109,23 +109,23 @@ def find_CM(image):
     
     # Image binarization
     binary_img = binarization(stretched_img)
-    cv2.imshow("Binary image", binary_img)
+    # cv2.imshow("Binary image", binary_img)
 
     # Canny edge detection 
     canny = cv2.Canny(binary_img, binary_img.shape[0], binary_img.shape[1])
-    cv2.imshow("Canny Edge Detection", canny)
-    canny[:100] = 0
-    canny[:, :100] = 0
-    canny[-100:] = 0
-    canny[:, -100:] = 0
-    cv2.imshow("Canny Edge Detection (after denoise)", canny)
+    # cv2.imshow("Canny Edge Detection", canny)
+    # canny[:100] = 0
+    # canny[:, :100] = 0
+    # canny[-100:] = 0
+    # canny[:, -100:] = 0
+    # cv2.imshow("Canny Edge Detection (after denoise)", canny)
     
     # Eliminate the small area, keep the big area, to locate the calling machine
     # Excute closing operation
     kernel = np.ones((5, 20), np.uint8)
     closingimg = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
-    cv2.imshow("Closing Opeartion image", closingimg)
-    cv2.waitKey(0)
+    # cv2.imshow("Closing Opeartion image", closingimg)
+    # cv2.waitKey(0)
 
     rectangle = locate_CM(closingimg, resize_img)
 
@@ -157,7 +157,7 @@ def smooth_and_binarization(CM_img):
     # Using average filter to denoise
     kernel = np.ones((3, 3), np.float32) / 9
     gray_img = cv2.filter2D(gray_img, -1, kernel)
-    cv2.imshow("Gray image after average filter", gray_img)
+    # cv2.imshow("Gray image after average filter", gray_img)
 
     # Binarization
     maximum = float(gray_img.max())
@@ -177,11 +177,17 @@ def locate_number(start, arg, black, white, width, black_max, white_max, ratio):
 
     return end
 
+
 def main(filename):
-    # filepath = "./images/CM_414.jpg"
-    image = cv2.imread(os.path.join("./images", filename + ".jpg"), cv2.IMREAD_COLOR)
+    # files = os.listdir("./Results_segmentation")
+    # for file in files:
+    #     os.remove(os.path.join("./Results_segmentation", file))
+    #
+    # filepath = "F:/Tello_img/New folder/2020-01-08_16-25-04.jpg"
+    image = cv2.imread(filename, cv2.IMREAD_COLOR)
+    # image = cv2.imread(os.path.join("./images", filename + ".jpg"), cv2.IMREAD_COLOR)
     resize_img = cv2.resize(image, (400, 300))
-    cv2.imshow("Original image", resize_img)
+    # cv2.imshow("Original image", resize_img)
 
     # Transform color space from RGB to HSV color to do histogram equalization
     # hsv_img = cv2.cvtColor(resize_img, cv2.COLOR_RGB2HSV)
@@ -192,15 +198,15 @@ def main(filename):
     # Resize the image and find rectangle of calling machine
     resize_img, rectangle = find_CM(resize_img)
     cv2.rectangle(resize_img, (rectangle[0], rectangle[1]), (rectangle[2], rectangle[3]), (0, 255, 0), 2)
-    cv2.imshow("Bounding box of number", resize_img)
+    # cv2.imshow("Bounding box of number", resize_img)
 
     # Segment the calling machine and background
     seg_img = segmentation(resize_img, rectangle)
-    cv2.imshow("Segment image into fg and bg", seg_img)
+    # cv2.imshow("Segment image into fg and bg", seg_img)
 
     # Binarize the segmentation result
     binary_img = smooth_and_binarization(seg_img)
-    cv2.imshow("Binary segmentation result", binary_img)
+    # cv2.imshow("Binary segmentation result", binary_img)
 
     # Analyze the color of background and numbers, and segment the each numbers#
     # 紀錄黑白像素總和
@@ -239,12 +245,12 @@ def main(filename):
                 print("Start:", start, ", End:", end)
                 number = binary_img[:, start-2:end+2] # Crop the area of number
                 resize_number = cv2.resize(number, (40, 300))
-                cv2.imshow('Number between (%d, %d)' %(start, end), resize_number)
-                cv2.waitKey(0)
+                # cv2.imshow('Number between (%d, %d)' %(start, end), resize_number)
+                # cv2.waitKey(0)
 
                 #------------------ Save the segmentation result -----------------#
                 os.makedirs("./Results_segmentation", exist_ok=True)
-                output_path = os.path.join("./Results_segmentation", "%s_position=%d.jpg" %(filename, position))
+                output_path = os.path.join("./Results_segmentation", "%s_position=%d.jpg" % ("crop", position))
                 print("Saved image to '%s'\n" %(output_path))
                 io.imsave(output_path, resize_number)
                 segmentation_numbers.append(resize_number)

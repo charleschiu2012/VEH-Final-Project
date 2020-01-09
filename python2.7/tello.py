@@ -456,5 +456,4 @@ class Tello:
             str: Response from Tello, 'OK' or 'FALSE'.
 
         """
-        print("tello is uPPPPPPPPPPPP")
         return self.move('up', distance)
