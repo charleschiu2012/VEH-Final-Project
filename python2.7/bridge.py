@@ -16,7 +16,7 @@ def get_socket_server(host, port):
 
 def get_client_data(server_socket, yolo_flag):
     client_socket, address = server_socket.accept()
-    logging.info("Accepted connection from: %s:%d" % (address[0], address[1]))
+    # logging.info("Accepted connection from: %s:%d" % (address[0], address[1]))
 
     # ---------- Receive the data from client ---------#
     _ = client_socket.recv(1024)
@@ -33,6 +33,6 @@ def get_client_data(server_socket, yolo_flag):
 
     # --------- Notify client that we get data --------#
     client_socket.send(b"Received")
-    logging.info("Notify client that we get data !!")
+    # logging.info("Notify client that we get data !!")
 
     return client_data

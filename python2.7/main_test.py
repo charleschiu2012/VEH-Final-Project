@@ -7,6 +7,8 @@ import numpy as np
 import time
 import cv2
 import os
+from PIL import Image
+import threading
 from simple_pid import PID
 
 
@@ -52,6 +54,27 @@ def get_frame(drone):
     else:
         cv2.imwrite("./images/image.jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
         return frame
+
+
+def videoLoop(drone):
+    """
+    The mainloop thread of Tkinter
+    Raises:
+        RuntimeError: To get around a RunTime error that Tkinter throws due to threading.
+    """
+    # start the thread that get GUI image and drwa skeleton
+    time.sleep(0.5)
+    IMAGE_IDX = 0
+    while True:
+        IMAGE_IDX += 1
+        # read the frame for GUI show
+        frame = drone.read()
+        if frame is None or frame.size == 0:
+            continue
+
+            # transfer the format from frame to image
+        # image = Image.fromarray(frame)
+        cv2.imwrite("./POV/image_%d.jpg" % (IMAGE_IDX), cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
 
 def rotate_drone(drone, frame, client_data):
@@ -109,7 +132,7 @@ def forward_or_backward(drone, frame, client_data, isCM):
 
     if isCM:
         distance = (1.8 - (1.8/220) * bbox_w)
-        print "DDDDDDDDDDDDistance {}".format(distance)
+        print "Distance {}".format(distance)
 
         # if bbox_area / frame_area < ratio:
         if distance > 0:
@@ -122,10 +145,11 @@ def forward_or_backward(drone, frame, client_data, isCM):
             return None
     else:
         if abs(bbox_h - frame_h) > 100:
-            distance = 0.2
+            distance = (3 - (2.0/220.0) * bbox_w)
             time.sleep(5)
             drone.move_forward(distance)
             time.sleep(5)
+            drone.land()
             return None
         else:
             return "So closed"
@@ -189,7 +213,8 @@ def control_drone(drone, server_yolo, name, isCM):
 
 def main(name, number):
     drone = tello.Tello('', 8889)
-    # vplayer = TelloUI(drone, "./img/")
+    thread = threading.Thread(target=videoLoop, args=(drone, ))
+    thread.start()
     time.sleep(10)
     server_yolo = get_socket_server(HOST="127.0.0.1", PORT=8888)
     server_CM = get_socket_server(HOST="127.0.0.1", PORT=9999)
@@ -228,14 +253,35 @@ def main(name, number):
                 numbers = []
                 for i in str(number):
                     numbers.append(int(i))
+                break
 
-                if len(client_data) != 3:
-                    print "Invaild prediction result"
-                elif numbers[0] == client_data[0] and numbers[1] == client_data[1] and numbers[2] == client_data[2]:
-                    print "\n\nGood prediction!\n\n"
-                    break
+        while True:
+            print "\nisExtract!!!!!!!!!!!!!\n"
+            _ = get_frame(drone)
+            _ = get_client_data(server_yolo, False)
+            time.sleep(1)
+            client_data = get_client_data(server_CM, False)
+            print "Input number: {}".format(number)
+            print "Predicted number: {}".format(client_data)
+            if len(client_data) != 3:
+                print "Invaild prediction result"
+                magic = np.random.randint(2)
+                if magic == 1:
+                    drone.rotate_cw(2)
                 else:
-                    print "\n\nWhat are you doing now???????\n\n"
+                    drone.rotate_ccw(2)
+            elif numbers[0] == client_data[0] and numbers[1] == client_data[1] and numbers[2] == client_data[2]:
+                print "\n\nGood prediction!\n\n"
+                break
+            else:
+                print "\n\nWhat are you doing now???????\n\n"
+                drone.rotate_cw(2)
+                drone.rotate_ccw(2)
+            files = os.listdir("./Results_segmentation")
+            for file in files:
+                os.remove(os.path.join("./Results_segmentation", file))
+
+
 
         isFindPeter = False
         isBack = False

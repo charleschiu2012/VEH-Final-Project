@@ -138,7 +138,7 @@ while True:
         cap = cv2.VideoCapture(image_path)
         hasFrame, frame = cap.read()
         
-        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
+        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0, 0, 0], 1, crop=False)
         net.setInput(blob)
         outs = net.forward(getOutputsNames(net))
         result = postprocess(frame, outs)

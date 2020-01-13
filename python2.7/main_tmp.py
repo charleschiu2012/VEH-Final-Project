@@ -4,6 +4,8 @@ import bridge
 import detect
 import movement
 import os
+from PIL import Image
+import threading
 from config import *
 
 
@@ -31,6 +33,27 @@ def empty_folder(dir):
         os.remove(os.path.join(dir, file))
 
 
+def videoLoop(drone):
+    """
+    The mainloop thread of Tkinter
+    Raises:
+        RuntimeError: To get around a RunTime error that Tkinter throws due to threading.
+    """
+    try:
+        # start the thread that get GUI image and drwa skeleton
+        time.sleep(0.5)
+        while True:
+
+            # read the frame for GUI show
+            frame = drone.read()
+            if frame is None or frame.size == 0:
+                continue
+
+                # transfer the format from frame to image
+            image = Image.fromarray(frame)
+
+
+
 def main(name, number):
     drone = tello.Tello('', DRONE_PORT)
     sleep(10)
@@ -41,7 +64,7 @@ def main(name, number):
     if takeoff_flag == "y":
         drone.takeoff()
         sleep(5)
-        drone.move_up(0.5)
+        drone.move_up(DEFAULT_HEIGHT)
         find_cm_flag = False
         extract_flag = False
         total_rotate = .0

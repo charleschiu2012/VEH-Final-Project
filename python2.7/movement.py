@@ -52,6 +52,10 @@ def translate_drone(drone, client_data):
 
     if center_y < frame_h / 2:
         distance = pixel_to_meter((frame_h / 2) - center_y)
+        # height = drone.get_height()
+        # logging.info("Height: {}".format(height))
+        # if distance + height > 2.5:
+        #     distance = 2.5 - height
         drone.move_up(distance)
     else:
         distance = pixel_to_meter(center_y - (frame_h / 2))
@@ -110,12 +114,12 @@ def check_cm_qaulity(drone, server_yolo):
     target_bbox = check_client_data(drone, server_yolo, CLASS_INDEX["CM"])
     if target_bbox is None:
         return False
-    frame_h, frame_w = FRAME_SIZE[0], FRAME_SIZE[1]
-    bbox_w, bbox_h = target_bbox[5], target_bbox[6]
-    frame_area = frame_h * frame_w
-    bbox_area = bbox_h * bbox_w
-    print "(bbox_area / frame_area) = {} / {} = {}".format(bbox_area, frame_area, bbox_area / frame_area)
-    return (bbox_area / frame_area) > QUALITY_THRESHOLD
+    # frame_h, frame_w = FRAME_SIZE[0], FRAME_SIZE[1]
+    bbox_w, _ = target_bbox[5], target_bbox[6]
+    # frame_area = frame_h * frame_w
+    # bbox_area = bbox_h * bbox_w
+    # print "(bbox_area / frame_area) = {} / {} = {}".format(bbox_area, frame_area, bbox_area / frame_area)
+    return bbox_w > 100
 
 
 def control_drone(drone, server_yolo, name):
